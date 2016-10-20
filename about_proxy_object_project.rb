@@ -16,9 +16,23 @@ class Proxy
   def initialize(target_object)
     @object = target_object
     # ADD MORE CODE HERE
+    @messages = Hash.new 0
   end
 
-  # WRITE CODE HERE
+  def method_missing method_name, *args
+    if @object.respond_to? method_name
+      @messages[method_name] += 1
+      @object.send method_name, *args
+    elsif method_name[/messages/]
+      @messages.keys
+    elsif method_name[/^called?/]
+      @messages.keys.include? args[0]
+    elsif method_name[/number_of_times_called/]
+      @messages[args[0]]
+    else
+      fail NoMethodError
+    end
+  end
 end
 
 # The proxy object should pass the following Koan:
